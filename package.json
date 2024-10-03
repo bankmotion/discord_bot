@@ -22,5 +22,8 @@
   },
   "devDependencies": {
     "@types/node-schedule": "^2.1.7"
+  },
+  "engines": {
+    "node": "20.x"
   }
 }
