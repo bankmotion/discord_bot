@@ -141,6 +141,7 @@ const ROLE_ID = "1206860573375987762"; // Use the provided role ID
 // Function to check if today is a weekday
 const isWeekday = (date: Date): boolean => {
   const day = date.getDay();
+  console.log(day);
   return day >= 1 && day <= 5; // 1 = Monday, 5 = Friday
 };
 
@@ -216,12 +217,14 @@ const sendMessage = async (channel: TextChannel) => {
 
 // Function to check if current time is within the allowed time range (9:30 AM to 4:00 PM EST)
 const isWithinTimeRange = (now: Date): boolean => {
+  return true;
   const estOffset =
     now.getTimezoneOffset() + (new Date().getTimezoneOffset() - 300);
   const estTime = new Date(now.getTime() + estOffset * 60000); // Adjust UTC time to EST
+  // const estTime = now;
   const currentHour = estTime.getHours();
   const currentMinute = estTime.getMinutes();
-
+  console.log({ currentHour, currentMinute });
   const startHour = 9;
   const startMinute = 30;
   const endHour = 22;
