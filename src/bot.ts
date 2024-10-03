@@ -249,7 +249,7 @@ const isCooldownOver = (now: Date): boolean => {
 
 // Schedule messages every 10 seconds between 9:30 AM - 4:00 PM EST
 const scheduleMessages = () => {
-  const job = schedule.scheduleJob("*/5 * * * * *", async () => {
+  const job = schedule.scheduleJob("*/30 * * * * *", async () => {
     const now = new Date();
 
     // Check if today is a weekday, not a holiday, within time range, and cooldown is over
