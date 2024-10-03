@@ -1,1 +1,1 @@
-worker: ts-node src/bot.ts
+worker: npm run build && nodemon --exec ts-node src/bot.ts
