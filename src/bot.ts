@@ -1,6 +1,5 @@
 import { Client, GatewayIntentBits, TextChannel } from "discord.js";
 import schedule from "node-schedule";
-//import Holidays from "date-holidays";
 import dotenv from "dotenv";
 import fs from "fs";
 import { holidays } from "./config";
@@ -136,12 +135,12 @@ let lastMessageTime: Date | null = null; // Last message sent time
 let currentCooldownMinutes = 1; // Minimum cooldown between messages in minutes
 
 // Discord role ID for tagging
-const ROLE_ID = "1206860573375987762"; // Use the provided role ID
+//const ROLE_ID = "1206860573375987762"; // Use the provided role ID
+const ROLE_ID = "1206860573375987762";
 
 // Function to check if today is a weekday
 const isWeekday = (date: Date): boolean => {
   const day = date.getDay();
-  console.log(day);
   return day >= 1 && day <= 5; // 1 = Monday, 5 = Friday
 };
 
@@ -149,7 +148,6 @@ const isWeekday = (date: Date): boolean => {
 const isHoliday = (date: Date): boolean => {
   const today = date.toISOString().split("T")[0]; //Format: YYYY-MM-DD
   return holidays.some((holiday: Holiday) => holiday.date === today);
-  //return holidays.isHoliday(date) !== false;
 };
 
 // Function to get a random message from the list
@@ -166,48 +164,58 @@ const getRandomCooldownMinutes = (): number => {
 const sendMessage = async (channel: TextChannel) => {
   const randomMessage = getRandomMessage();
 
-  // // Include the role mention in the message
-  // const messageWithRole = `<@&${ROLE_ID}> ${randomMessage}`;
-
-  // try {
-  //   const role = await channel.guild.roles.fetch(ROLE_ID);
-  //   if (!role) {
-  //     console.log("Role not found.");
-  //     return;
-  //   }
-
-  //   if (!role.mentionable) {
-  //     console.log("Role is not mentionable.");
-  //     return;
-  //   }
-
-  //   const sentMessage = await channel.send(messageWithRole); // Send message with role tag
-  //   console.log(`Message sent: ${messageWithRole}`);
-
-  //   // Schedule message deletion after 20 minutes
-  //   setTimeout(async () => {
-  //     try {
-  //       await sentMessage.delete();
-  //       console.log(`Message deleted: ${messageWithRole}`);
-  //     } catch (error) {
-  //       console.error("Error deleting message:", error);
-  //     }
-  //   }, 20 * 60 * 1000); // 20 minutes
-  // } catch (error) {
-  //   console.error("Error fetching or sending role:", error);
-  // }
-  const sentMessage = await channel.send(randomMessage);
-  console.log(`Message sent: ${randomMessage}`);
-
-  // Schedule message deletion after 20 minutes
-  setTimeout(async () => {
-    try {
-      await sentMessage.delete();
-      console.log(`Message deleted: ${randomMessage}`);
-    } catch (error) {
-      console.error("Error deleting message:", error);
+  try {
+    const role = await channel.guild.roles.fetch(ROLE_ID);
+    if (!role) {
+      console.log("Role not found.");
+      return;
     }
-  }, 1 * 60 * 1000); // 20 minutes
+
+    // Check if the role is mentionable
+    if (!role.mentionable) {
+      await role.edit({ mentionable: true });
+      console.log("Role is not mentionable.");
+      return;
+    }
+
+    // Create the message with role mention
+    const messageWithRole = `<@&${ROLE_ID}> ${randomMessage}`;
+
+    // Send the message with the role mention
+    const sentMessage = await channel.send(messageWithRole);
+    console.log(`Message sent: ${messageWithRole}`);
+
+    // Schedule message deletion after 20 minutes
+    setTimeout(async () => {
+      try {
+        await sentMessage.delete();
+        console.log(`Message deleted: ${messageWithRole}`);
+      } catch (error) {
+        console.error("Error deleting message:", error);
+      }
+    }, 1 * 60 * 1000); // 20 minutes delete
+
+    // After sending the message, revert the role mentionable status
+    if (!role.mentionable) {
+      await role.edit({ mentionable: false });
+      console.log("Reverted the role mentionable status.");
+    }
+  } catch (error) {
+    console.error("Error fetching or sending role:", error);
+  }
+
+  // const sentMessage = await channel.send(randomMessage);
+  // console.log(`Message sent: ${randomMessage}`);
+
+  // // Schedule message deletion after 20 minutes
+  // setTimeout(async () => {
+  //   try {
+  //     await sentMessage.delete();
+  //     console.log(`Message deleted: ${randomMessage}`);
+  //   } catch (error) {
+  //     console.error("Error deleting message:", error);
+  //   }
+  // }, 1 * 60 * 1000); // 20 minutes
 
   // Set a new random cooldown after sending the message
   currentCooldownMinutes = getRandomCooldownMinutes();
