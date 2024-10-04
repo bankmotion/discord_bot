@@ -217,23 +217,39 @@ const sendMessage = async (channel: TextChannel) => {
 
 // Function to check if current time is within the allowed time range (9:30 AM to 4:00 PM EST)
 const isWithinTimeRange = (now: Date): boolean => {
-  return true;
-  const estOffset =
-    now.getTimezoneOffset() + (new Date().getTimezoneOffset() - 300);
-  const estTime = new Date(now.getTime() + estOffset * 60000); // Adjust UTC time to EST
-  // const estTime = now;
-  const currentHour = estTime.getHours();
-  const currentMinute = estTime.getMinutes();
+  //return true;
+  // Get the current time in EST (Eastern Standard Time)
+  const estTimeParts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false, // 24-hour format
+  }).formatToParts(now);
+
+  // Extract the hour and minute from the parts
+  const currentHour = parseInt(
+    estTimeParts.find((part) => part.type === "hour")?.value || "0",
+    10
+  );
+  const currentMinute = parseInt(
+    estTimeParts.find((part) => part.type === "minute")?.value || "0",
+    10
+  );
+
   console.log({ currentHour, currentMinute });
-  const startHour = 9;
+
+  // Time range (in EST)
+  const startHour = 1;
   const startMinute = 30;
-  const endHour = 22;
+  const endHour = 16; // 4:00 PM
   const endMinute = 0;
 
+  // Convert current time, start time, and end time into minutes
   const currentTimeInMinutes = currentHour * 60 + currentMinute;
   const startTimeInMinutes = startHour * 60 + startMinute;
   const endTimeInMinutes = endHour * 60 + endMinute;
 
+  // Check if the current time is within the specified range
   return (
     currentTimeInMinutes >= startTimeInMinutes &&
     currentTimeInMinutes < endTimeInMinutes
