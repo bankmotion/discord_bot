@@ -1,7 +1,7 @@
 export const config = {
   roleID: "1206860573375987762",
-  maxDurationTime: 90,
-  minDurationTime: 70,
+  maxDurationTime: 60,
+  minDurationTime: 40,
   deleteDuration: 15,
   startHour: 9,
   startMin: 30,

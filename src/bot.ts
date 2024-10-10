@@ -39,7 +39,7 @@ const getRandomMessage = (): string => {
   return config.message[randomIndex];
 };
 
-// Function to get a random cooldown between 40 and 60 minutes
+// Function to get a random cooldown between 70 and 90 minutes
 const getRandomCooldownMinutes = (): number => {
   return (
     Math.floor(
@@ -124,12 +124,31 @@ const isCooldownOver = (now: Date): boolean => {
   return diff >= currentCooldownMinutes;
 };
 
-// Schedule messages every 10 seconds between 9:30 AM - 4:00 PM EST
+// Generate a random time between 9:30 AM and 10:30 AM for the first message
+const getRandomFirstMessageTime = (): Date => {
+  const now = new Date();
+  const startTime = new Date(now);
+  startTime.setHours(9, 30, 0, 0); // 9:30 AM
+  const endTime = new Date(now);
+  endTime.setHours(10, 30, 0, 0); // 10:30 AM
+
+  const randomTime = new Date(
+    startTime.getTime() +
+      Math.random() * (endTime.getTime() - startTime.getTime())
+  );
+
+  return randomTime;
+};
+
+// Schedule messages every 10 seconds between 9:30 AM - 4:00 PM EST after the random first message
 const scheduleMessages = () => {
-  const job = schedule.scheduleJob("*/120 * * * * *", async () => {
+  const firstMessageTime = getRandomFirstMessageTime();
+  console.log(`First message will be sent at: ${firstMessageTime}`);
+
+  const job = schedule.scheduleJob(firstMessageTime, async () => {
     const now = new Date();
 
-    // Check if today is a weekday, not a holiday, within time range, and cooldown is over
+    // Check if today is a weekday, not a holiday, and cooldown is over
     if (
       isWeekday(now) &&
       !isHoliday(now) &&
@@ -143,12 +162,33 @@ const scheduleMessages = () => {
         await sendMessage(channel);
         lastMessageTime = new Date(); // Update last message time
       } catch (error) {
-        console.error("Error sending message:", error);
+        console.error("Error sending first message:", error);
       }
-    } else {
-      console.log(
-        `Skipping message at ${now}: Not a weekday, it's a holiday, or outside of time range`
-      );
+      const recurringjob = schedule.scheduleJob("*/60 * * * * *", async () => {
+        const now = new Date();
+
+        // Check if today is a weekday, not a holiday, within time range, and cooldown is over
+        if (
+          isWeekday(now) &&
+          !isHoliday(now) &&
+          isWithinTimeRange(now) &&
+          isCooldownOver(now)
+        ) {
+          try {
+            const channel = (await client.channels.fetch(
+              CHANNEL_ID
+            )) as TextChannel;
+            await sendMessage(channel);
+            lastMessageTime = new Date(); // Update last message time
+          } catch (error) {
+            console.error("Error sending message:", error);
+          }
+        } else {
+          console.log(
+            `Skipping message at ${now}: Not a weekday, it's a holiday, or outside of time range`
+          );
+        }
+      });
     }
   });
 };
