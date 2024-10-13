@@ -130,7 +130,7 @@ const isCooldownOver = (now: Date): boolean => {
 
 // Schedule messages every 60 seconds between 9:30 AM - 4:00 PM EST
 const scheduleMessages = () => {
-  const job = schedule.scheduleJob("*/120 * * * * *", async () => {
+  const job = schedule.scheduleJob("*/60 * * * * *", async () => {
     const now = new Date();
 
     // Generate a random start time between 9:30 AM (570 minutes) and 10:30 AM (630 minutes)
