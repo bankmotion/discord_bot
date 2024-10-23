@@ -134,8 +134,8 @@ const scheduleMessages = () => {
     const now = new Date();
 
     // Generate a random start time between 9:30 AM (570 minutes) and 10:30 AM (630 minutes)
-    const randomStartTime = 570 + Math.floor(Math.random() * 61); // Random minutes between 570 (9:30) and 630 (10:30)
-    const randomStartHour = Math.floor(randomStartTime / 60); // 9 or 10
+    const randomStartTime = 600 + Math.floor(Math.random() * 61); // Random minutes between 570 (9:30) and 630 (10:30)
+    const randomStartHour = Math.floor(randomStartTime / 60); // 10
     const randomStartMin = randomStartTime % 60; // 30 to 59
 
     // Check if today is a weekday, not a holiday, within time range, and cooldown is over
